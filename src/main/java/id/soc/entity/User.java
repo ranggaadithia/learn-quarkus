@@ -1,15 +1,14 @@
-package id.soc.dto;
+package id.soc.entity;
 
-public class UserData {
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.Entity;
+
+@Entity
+public class User extends PanacheEntity {
 
     private String name;
     private String email;
     private String password;
-
-    public UserData(String name, String email) {
-        this.name = name;
-        this.email = email;
-    }
 
     public String getName() {
         return name;
