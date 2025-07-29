@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import id.soc.dto.UserData;
 import id.soc.entity.User;
+import id.soc.repository.UserRepository;
 import jakarta.ws.rs.Produces;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -22,10 +24,13 @@ import jakarta.ws.rs.core.Response.Status;
 @Path("/users")
 public class UserResource {
 
+    @Inject
+    UserRepository userRepository;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllUser() {
-        List<User> users = User.listAll();
+        List<User> users = userRepository.listAll();
         return Response.ok(users).build();
     }
 
@@ -41,7 +46,7 @@ public class UserResource {
         user.setPassword(userData.getPassword());
         user.setDateOfBirth(userData.getDateOfBirth());
 
-        user.persist();
+        userRepository.persist(user);
         return Response.created(null).build();
     }
 
@@ -51,7 +56,7 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateUser(@PathParam("id") Long id, @Valid UserData userData) {
-        Optional<User> userOptional = User.findByIdOptional(id);
+        Optional<User> userOptional = userRepository.findByIdOptional(id);
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
@@ -59,8 +64,9 @@ public class UserResource {
             user.setName(userData.getName());
             user.setEmail(userData.getEmail());
             user.setPassword(userData.getPassword());
+            user.setDateOfBirth(userData.getDateOfBirth());
 
-            user.persist();
+            userRepository.persist(user);
 
             return Response.ok("").build();
         }
@@ -73,7 +79,7 @@ public class UserResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteUser(@PathParam("id") Long id) {
-        Optional<User> userOptional = User.findByIdOptional(id);
+        Optional<User> userOptional = userRepository.findByIdOptional(id);
 
         if (userOptional.isPresent()) {
             userOptional.get().delete();
@@ -82,4 +88,15 @@ public class UserResource {
 
         return Response.status(Status.NOT_FOUND).build();
     }
+
+    @GET
+    @Path("/{id}/age")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUserAge(@PathParam("id") Long id) {
+        return userRepository.calculateAgeByUserId(id)
+                .map(Response::ok)
+                .orElse(Response.status(Status.NOT_FOUND))
+                .build();
+    }
+
 }
