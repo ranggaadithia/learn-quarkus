@@ -2,8 +2,11 @@ package id.soc.rest;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import id.soc.dto.UserData;
+import id.soc.dto.user.CreateUserRequest;
+import id.soc.dto.user.UpdateUserRequest;
+import id.soc.dto.user.UserResponse;
 import id.soc.entity.User;
 import id.soc.repository.UserRepository;
 import jakarta.ws.rs.Produces;
@@ -31,14 +34,23 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllUser() {
         List<User> users = userRepository.listAll();
-        return Response.ok(users).build();
+
+        List<UserResponse> userResponses = users.stream()
+                .map(user -> new UserResponse(
+                        user.id,
+                        user.getName(),
+                        user.getEmail(),
+                        user.getDateOfBirth()))
+                .collect(Collectors.toList());
+
+        return Response.ok(userResponses).build();
     }
 
     @POST
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createUser(@Valid UserData userData) {
+    public Response createUser(@Valid CreateUserRequest userData) {
         User user = new User();
 
         user.setName(userData.getName());
@@ -55,7 +67,7 @@ public class UserResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateUser(@PathParam("id") Long id, @Valid UserData userData) {
+    public Response updateUser(@PathParam("id") Long id, @Valid UpdateUserRequest userData) {
         Optional<User> userOptional = userRepository.findByIdOptional(id);
 
         if (userOptional.isPresent()) {

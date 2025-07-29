@@ -1,23 +1,21 @@
-package id.soc.dto;
+package id.soc.dto.user;
 
 import java.time.LocalDate;
 
 import id.soc.constraints.Adult;
-import id.soc.constraints.UniqueEmail;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 
-public class UserData {
+public class UpdateUserRequest {
 
     @NotBlank
     private String name;
 
     @NotBlank
     @Email
-    @UniqueEmail
     private String email;
 
     @NotBlank
@@ -29,9 +27,12 @@ public class UserData {
     @Adult
     private LocalDate dateOfBirth;
 
-    public UserData(String name, String email) {
+    public UpdateUserRequest(@NotBlank String name, @NotBlank @Email String email,
+            @NotBlank @Size(min = 8) String password, @NotNull @Past LocalDate dateOfBirth) {
         this.name = name;
         this.email = email;
+        this.password = password;
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String getName() {
@@ -65,4 +66,5 @@ public class UserData {
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
+
 }
