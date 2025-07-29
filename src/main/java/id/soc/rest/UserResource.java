@@ -7,6 +7,7 @@ import id.soc.dto.UserData;
 import id.soc.entity.User;
 import jakarta.ws.rs.Produces;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -32,12 +33,13 @@ public class UserResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createUser(UserData userData) {
+    public Response createUser(@Valid UserData userData) {
         User user = new User();
 
         user.setName(userData.getName());
         user.setEmail(userData.getEmail());
         user.setPassword(userData.getPassword());
+        user.setDateOfBirth(userData.getDateOfBirth());
 
         user.persist();
         return Response.created(null).build();
@@ -48,7 +50,7 @@ public class UserResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateUser(@PathParam("id") Long id, UserData userData) {
+    public Response updateUser(@PathParam("id") Long id, @Valid UserData userData) {
         Optional<User> userOptional = User.findByIdOptional(id);
 
         if (userOptional.isPresent()) {
